@@ -15,7 +15,7 @@ mongoose.connect("mongodb+srv://kusum_99:9vJ9mxlJH1cYZ1oO@cluster0.jelghm1.mongo
 
 app.use('/', route)
 
-app.use('/*', function (req, res) {
+app.use(function (req, res) {
     return res.status(400).send({ status: false, msg: "Wrong URL Path" })
 })
 
