@@ -1,12 +1,30 @@
-const shortUrl = require('node-url-shortener')
-const ValidUrl = require('valid-url')
+const shortId = require('shortid')
+const axios = require('axios')
 const urlModel = require('../model/urlModel')
 
 
 const createShortUrl = async function (req, res) {
-    let data = req.body.longUrl
-    shortUrl.short(data, function (err, url) { console.log(url) })
-    res.status(201).send({ status: true, data:"msg" })
+    let longUrl = req.body.longUrl
+   let option = {
+    method:"get",
+    url:longUrl
+   }
+   let result = await axios(option)
+   .then(()=>longUrl)
+   .catch(err => console.log(err))
+
+   let baseUrl ="http://localhost:3000/" 
+   let shortid =shortId.generate().toLocaleLowerCase()
+   let shortUrl= baseUrl+shortid
+
+ let data ={
+    longUrl:longUrl,
+    shortUrl:shortUrl,
+    urlCode:shortid
+ }
+ await urlModel.create(data)
+ return res.status(201).send({status:true,data:data})
+
 }
 
 
