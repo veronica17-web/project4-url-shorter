@@ -17,6 +17,8 @@
   },
   "homepage": "https://github.com/sheru99/url-shortner-project04#readme",
   "dependencies": {
-    "express": "^4.18.1"
+    "express": "^4.18.1",
+    "mongoose": "^6.6.2",
+    "nodemon": "^2.0.20"
   }
 }
