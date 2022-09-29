@@ -17,7 +17,12 @@ const createShortUrl = async function (req, res) {
             return res.status(400)
                 .send({ status: false, message: "required data" })
         }
-        //checking is in string format or not
+        //checking longurl is present or not
+        if(!Object.keys(data).includes('longUrl')){
+            return res.status(400)
+                .send({ status: false, message: "required longUrl" })
+        }
+        //checking data is in string format or not
         if(!isValid(data.longUrl)){return res.status(400)
             .send({ status: false, message: " long url must be in string" })
         }
@@ -50,7 +55,8 @@ const geturl = async function (req, res) {
         const urlCode = req.params.urlCode
         //checking the in path variable that short url present or not
         if (urlCode === ":urlCode") { return res.status(404).send({ status: false, message: 'required urlcode' }) }
-
+        //checking is it valid short url or not
+      if(!shortId.isValid(urlCode)){ return res.status(404).send({ status: false, message: 'short url is in valid' }) }
       
         const url = await urlModel.findOne({ urlCode: urlCode })   //check in Db
 
@@ -62,7 +68,6 @@ const geturl = async function (req, res) {
         return res.status(302).send(`found redirecting to ${url.longUrl}`)
 
     } catch (err) {
-
         res.status(500).send({ msg: err.message })
     }
 }
