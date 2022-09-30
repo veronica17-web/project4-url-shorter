@@ -64,8 +64,8 @@ const geturl = async function (req, res) {
             return res.status(404).send({ status: false, message: 'No URL Found' })
         }
 
-        //return res.status(302).redirect(url.longUrl)
-        return res.status(302).send(`found redirecting to ${url.longUrl}`)
+        return res.status(302).redirect(url.longUrl)
+        //return res.status(302).send(`found redirecting to ${url.longUrl}`)
 
     } catch (err) {
         res.status(500).send({ msg: err.message })
@@ -75,3 +75,4 @@ const geturl = async function (req, res) {
 
 
 module.exports = { createShortUrl, geturl }
+
