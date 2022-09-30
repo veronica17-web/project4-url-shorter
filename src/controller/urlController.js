@@ -9,6 +9,11 @@ const isValid = function (value) {
     return true;
 };
 
+const isValidUrl = function(value) {
+    let regexForUrl =
+        /(:?^((https|http|HTTP|HTTPS){1}:\/\/)(([w]{3})[\.]{1})?([a-zA-Z0-9]{1,}[\.])[\w]((\/){1}([\w@?^=%&amp;~+#-_.]+)))$/;
+    return regexForUrl.test(value);
+};
 const createShortUrl = async function (req, res) {
     try {
         let data = req.body
@@ -27,7 +32,7 @@ const createShortUrl = async function (req, res) {
             .send({ status: false, message: " long url must be in string" })
         }
         //checking is valid url or not
-        if (!validUrl.isUri(data.longUrl)) {
+        if (!isValidUrl(data.longUrl)) {
             return res.status(400)
                 .send({ status: false, message: "invalid long url" })
         }
