@@ -1,6 +1,8 @@
 const shortId = require('shortid')
 const validUrl = require("valid-url")
 const urlModel = require('../model/urlModel')
+const redis=require('redis')
+const {promisify}=require('util')
 
 const isValid = function (value) {
     if (typeof value !== "string" || value.trim().length === 0) {
@@ -55,29 +57,73 @@ const createShortUrl = async function (req, res) {
 //==============================Geturlcode==========================================================
 
 
-const geturl = async function (req, res) {
-    try {
-        const urlCode = req.params.urlCode
-        //checking the in path variable that short url present or not
-        if (urlCode === ":urlCode") { return res.status(404).send({ status: false, message: 'required urlcode' }) }
-        //checking is it valid short url or not
-      if(!shortId.isValid(urlCode)){ return res.status(404).send({ status: false, message: 'short url is in valid' }) }
+// const geturl = async function (req, res) {
+//     try {
+//         const urlCode = req.params.urlCode
+//         //checking the in path variable that short url present or not
+//         if (urlCode === ":urlCode") { return res.status(404).send({ status: false, message: 'required urlcode' }) }
+//         //checking is it valid short url or not
+//       if(!shortId.isValid(urlCode)){ return res.status(404).send({ status: false, message: 'short url is in valid' }) }
       
-        const url = await urlModel.findOne({ urlCode: urlCode })   //check in Db
+//         const url = await urlModel.findOne({ urlCode: urlCode })   //check in Db
 
-        if (!url) {
-            return res.status(404).send({ status: false, message: 'No URL Found' })
+//         if (!url) {
+//             return res.status(404).send({ status: false, message: 'No URL Found' })
+//         }
+
+//         return res.status(302).redirect(url.longUrl)
+//         //return res.status(302).send(`found redirecting to ${url.longUrl}`)
+
+//     } catch (err) {
+//         res.status(500).send({ msg: err.message })
+//     }
+// }
+
+const fetchUrl = async function (req, res) {
+    try {
+        const urlCode = req.params.urlCode.trim()
+
+        // if (!isValid(urlCode)) {
+        //     return res.status(400).send({ status: false, message: 'Please provide valid urlCode' })
+        // }
+
+        const redisClient = redis.createClient(
+            10108,
+            "redis-10108.c8.us-east-1-2.ec2.cloud.redislabs.com",
+            { no_ready_check: true }
+        );
+        redisClient.auth("f9LUCTQENJQGMM2WTOZ3dQ91sZs6yCl5", function (err) {
+            if (err) throw err;
+        });
+
+        redisClient.on("connect", async function () {
+            console.log("Connected to Redis..");
+        });
+
+        //1. connect to the server
+        //2. use the commands :
+
+        //Connection setup for redis
+
+        const SET_ASYNC = promisify(redisClient.SET).bind(redisClient);
+        const GET_ASYNC = promisify(redisClient.GET).bind(redisClient);
+
+        // const fetchAuthorProfile = async function (req, res) {
+        let cahcedProfileData = await GET_ASYNC(`${req.params.urlCode.trim()}`)
+        if (cahcedProfileData) {
+            res.send(cahcedProfileData)
+        } else {
+            let profile = await urlModel.findOne({ urlCode: urlCode });
+            await SET_ASYNC(`${urlCode}`, JSON.stringify(profile))
+            res.send({ data: profile.longUrl });
         }
-
-        return res.status(302).redirect(url.longUrl)
-        //return res.status(302).send(`found redirecting to ${url.longUrl}`)
-
     } catch (err) {
+
         res.status(500).send({ msg: err.message })
     }
 }
 
 
 
-module.exports = { createShortUrl, geturl }
+module.exports = { createShortUrl,fetchUrl }
 

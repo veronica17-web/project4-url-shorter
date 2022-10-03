@@ -9,5 +9,5 @@ router.get('/test-api',function(req,res){
 
 router.post('/url/shorten',urlController.createShortUrl)
 
-router.get("/:urlCode",urlController.geturl)
+router.get("/:urlCode",urlController.fetchUrl)
 module.exports=router
