@@ -57,32 +57,9 @@ const createShortUrl = async function (req, res) {
 }
 //==============================Geturlcode==========================================================
 
-
-// const geturl = async function (req, res) {
-//     try {
-//         const urlCode = req.params.urlCode
-//         //checking the in path variable that short url present or not
-//         if (urlCode === ":urlCode") { return res.status(404).send({ status: false, message: 'required urlcode' }) }
-//         //checking is it valid short url or not
-//       if(!shortId.isValid(urlCode)){ return res.status(404).send({ status: false, message: 'short url is in valid' }) }
-
-//         const url = await urlModel.findOne({ urlCode: urlCode })   //check in Db
-
-//         if (!url) {
-//             return res.status(404).send({ status: false, message: 'No URL Found' })
-//         }
-
-//         return res.status(302).redirect(url.longUrl)
-//         //return res.status(302).send(`found redirecting to ${url.longUrl}`)
-
-//     } catch (err) {
-//         res.status(500).send({ msg: err.message })
-//     }
-// }
-
 const fetchUrl = async function (req, res) {
     try {
-        const urlCode = req.params.urlCode.trim()
+        const urlCode = req.params.urlCode
         
         //checking the in path variable that short url present or not
         if (urlCode === ":urlCode") { 
