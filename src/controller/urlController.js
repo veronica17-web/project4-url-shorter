@@ -1,5 +1,5 @@
 const shortId = require('shortid')
-const validUrl = require("valid-url")
+const validUrl = require("is-valid-http-url")
 const urlModel = require('../model/urlModel')
 const redis = require('redis')
 const { promisify } = require('util')
@@ -11,11 +11,7 @@ const isValid = function (value) {
     return true;
 };
 
-const isValidUrl = function (value) {
-    let regexForUrl =
-        /(:?^((https|http|HTTP|HTTPS){1}:\/\/)(([w]{3})[\.]{1})?([a-zA-Z0-9]{1,}[\.])[\w]((\/){1}([\w@?^=%&amp;~+#-_.]+)))$/;
-    return regexForUrl.test(value);
-};
+
 const createShortUrl = async function (req, res) {
     try {
         let data = req.body
@@ -35,7 +31,7 @@ const createShortUrl = async function (req, res) {
                 .send({ status: false, message: " long url must be in string" })
         }
         //checking is valid url or not
-        if (!isValidUrl(data.longUrl)) {
+        if (!validUrl(data.longUrl)) {
             return res.status(400)
                 .send({ status: false, message: "invalid long url" })
         }
@@ -70,11 +66,11 @@ const fetchUrl = async function (req, res) {
                  return res.status(404).send({ status: false, message: 'short url is in valid' }) }
 
         const redisClient = redis.createClient(
-            17416,
-            "redis-17416.c301.ap-south-1-1.ec2.cloud.redislabs.com",
+            17416,//port number
+            "redis-17416.c301.ap-south-1-1.ec2.cloud.redislabs.com",//ip address
             { no_ready_check: true }
         );
-        redisClient.auth("ocV23EoARL37Be3XZGjj6qL7FzFCDkhk", function (err) {
+        redisClient.auth("ocV23EoARL37Be3XZGjj6qL7FzFCDkhk", function (err) {//password
             if (err) throw err;
         });
 
@@ -84,12 +80,12 @@ const fetchUrl = async function (req, res) {
 
         const SET_ASYNC = promisify(redisClient.SET).bind(redisClient);
         const GET_ASYNC = promisify(redisClient.GET).bind(redisClient);
-        const DEL_ASYNC = promisify(redisClient.DEL).bind(redisClient);
+        //const DEL_ASYNC = promisify(redisClient.DEL).bind(redisClient);
          
 
-        let cacheUrlData = await GET_ASYNC(`${urlCode}`);
-        if (cacheUrlData && cacheUrlData != 'null') {
-            let object = JSON.parse(cacheUrlData)
+        let cacheUrlData = await GET_ASYNC(urlCode);// catch call
+        if (cacheUrlData && cacheUrlData != 'null') { 
+            let object = JSON.parse(cacheUrlData)// converts string to obj
 
             return res.status(302).redirect(object.longUrl);
         } else {
