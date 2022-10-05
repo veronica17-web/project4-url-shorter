@@ -5,6 +5,12 @@ const urlSchema = new mongoose.Schema({
         required: true,
         trim: true,
     },
+    
+    shortUrl: {
+        type: String,
+        required: true,
+        unique: true,
+    },
     urlCode: {
         type: String,
         unique: true,
@@ -12,13 +18,7 @@ const urlSchema = new mongoose.Schema({
         lowercase: true,
         trim: true,
     },
-
-    shortUrl: {
-        type: String,
-        required: true,
-        unique: true,
-    }
-    }, { timestamps: true })
+}, { timestamps: true })
  
 module.exports = mongoose.model('url', urlSchema)
 
